@@ -1,0 +1,10 @@
+{
+  "name": "歷史記憶練習",
+  "short_name": "歷史練習",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "lang": "zh-Hant",
+  "icons": []
+}
