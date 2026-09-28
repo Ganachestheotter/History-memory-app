@@ -1,0 +1,62 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    match /profiles/{uid} {
+      allow read: if signedIn();
+      allow create: if isOwner(uid)
+        && request.resource.data.displayName is string
+        && request.resource.data.displayName.size() >= 1
+        && request.resource.data.displayName.size() <= 16
+        && request.resource.data.weeklyScore is number
+        && request.resource.data.weeklyScore >= 0;
+      allow update: if isOwner(uid)
+        && request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['displayName', 'weeklyScore', 'weekKey', 'updatedAt'])
+        && request.resource.data.displayName is string
+        && request.resource.data.displayName.size() >= 1
+        && request.resource.data.displayName.size() <= 16
+        && request.resource.data.weeklyScore is number
+        && request.resource.data.weeklyScore >= 0;
+      allow delete: if false;
+    }
+
+    match /states/{uid} {
+      allow read, create, update: if isOwner(uid);
+      allow delete: if false;
+    }
+
+    match /challenges/{challengeId} {
+      allow read: if signedIn()
+        && (resource.data.from == request.auth.uid || resource.data.to == request.auth.uid);
+
+      allow create: if signedIn()
+        && request.resource.data.from == request.auth.uid
+        && request.resource.data.to is string
+        && request.resource.data.to != request.auth.uid
+        && request.resource.data.questionIds is list
+        && request.resource.data.questionIds.size() >= 5
+        && request.resource.data.questionIds.size() <= 10
+        && request.resource.data.results is map;
+
+      allow update: if signedIn()
+        && (resource.data.from == request.auth.uid || resource.data.to == request.auth.uid)
+        && request.resource.data.from == resource.data.from
+        && request.resource.data.to == resource.data.to
+        && request.resource.data.section == resource.data.section
+        && request.resource.data.questionIds == resource.data.questionIds
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['results', 'updatedAt'])
+        && request.resource.data.results.diff(resource.data.results).affectedKeys().hasOnly([request.auth.uid]);
+
+      allow delete: if false;
+    }
+  }
+}
