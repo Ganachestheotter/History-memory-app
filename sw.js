@@ -1,4 +1,4 @@
-const CACHE='history-memory-v0.1.1-github';
+const CACHE='history-memory-v0.2.0-firebase';
 const ASSETS=[
   './','./index.html','./styles.css','./loader.js','./manifest.webmanifest',
   './payload/app.js.gz.b64',
