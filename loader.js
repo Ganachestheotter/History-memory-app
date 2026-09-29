@@ -31,27 +31,47 @@ window.FIREBASE_SERVICES = {
 
 const app = document.getElementById('app');
 
+async function gunzipBytes(bytes) {
+  if (typeof DecompressionStream !== 'undefined') {
+    const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
+    return await new Response(stream).text();
+  }
+  const { ungzip } = await import('https://cdn.jsdelivr.net/npm/pako@2.1.0/+esm');
+  return new TextDecoder().decode(ungzip(bytes));
+}
+
 async function loadCompressed(paths) {
   const parts = await Promise.all(paths.map(async (path) => {
-    const r = await fetch(path, { cache: 'no-cache' });
-    if (!r.ok) throw new Error('載入失敗');
+    const r = await fetch(path + '?v=021', { cache: 'no-store' });
+    if (!r.ok) throw new Error('HTTP ' + r.status + ' · ' + path);
     return (await r.text()).trim();
   }));
   const binary = atob(parts.join(''));
   const bytes = new Uint8Array(binary.length);
   for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-  const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
-  return await new Response(stream).text();
+  return await gunzipBytes(bytes);
+}
+
+function fail(err) {
+  console.error('History app load error:', err);
+  const msg = String(err?.message || err || 'unknown').slice(0, 160);
+  if (app) app.innerHTML =
+    '<div class="shell"><div class="card" style="margin-top:20vh">' +
+    '<h2>載入失敗</h2><p>請重新整理頁面再試。</p>' +
+    '<p class="tiny muted">錯誤：' + msg.replace(/[<>&]/g, '') + '</p>' +
+    '</div></div>';
 }
 
 try {
-  if (typeof DecompressionStream === 'undefined') throw new Error('請更新瀏覽器');
   if (app) app.innerHTML = '<div class="shell"><div class="card" style="margin-top:20vh;text-align:center"><b>載入中…</b></div></div>';
-  const questionsCode = await loadCompressed(['./payload/questions-0.gz.b64','./payload/questions-1.gz.b64']);
+  const questionsCode = await loadCompressed([
+    './payload/questions-0.gz.b64',
+    './payload/questions-1.gz.b64'
+  ]);
   (0, eval)(questionsCode);
+
   const appCode = await loadCompressed(['./payload/app.js.gz.b64']);
   (0, eval)(appCode);
 } catch (err) {
-  console.error(err);
-  if (app) app.innerHTML = '<div class="shell"><div class="card" style="margin-top:20vh"><h2>載入失敗</h2><p>請重新整理頁面再試。</p></div></div>';
+  fail(err);
 }
