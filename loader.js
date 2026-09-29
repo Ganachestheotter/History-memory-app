@@ -46,7 +46,7 @@ async function loadCompressed(paths) {
     if (!r.ok) throw new Error('HTTP ' + r.status + ' · ' + path);
     return (await r.text()).trim();
   }));
-  const binary = atob(parts.join(''));
+  const joined = parts.join('').replace(/\\s+/g, '');\n  const padded = joined + '='.repeat((4 - (joined.length % 4)) % 4);\n  const binary = atob(padded);
   const bytes = new Uint8Array(binary.length);
   for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
   return await gunzipBytes(bytes);
