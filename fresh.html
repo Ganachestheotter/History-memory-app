@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>歷史記憶練習</title>
-  <link rel="stylesheet" href="styles.css?v=026" />
+  <link rel="stylesheet" href="styles.css?v=027" />
 </head>
 <body>
   <div id="app">
@@ -19,22 +19,16 @@
       try {
         if ('serviceWorker' in navigator) {
           const regs = await navigator.serviceWorker.getRegistrations();
-          await Promise.all(regs.map(function (reg) {
-            return reg.unregister();
-          }));
+          await Promise.all(regs.map(function (reg) { return reg.unregister(); }));
         }
-
         if ('caches' in window) {
           const keys = await caches.keys();
-          await Promise.all(keys.map(function (key) {
-            return caches.delete(key);
-          }));
+          await Promise.all(keys.map(function (key) { return caches.delete(key); }));
         }
       } catch (err) {
         console.warn('Cache cleanup failed:', err);
       }
-
-      location.replace('./clean.html?v=026');
+      location.replace('./clean.html?v=027');
     })();
   </script>
 </body>
