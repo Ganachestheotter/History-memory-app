@@ -1,15 +1,8 @@
-const CACHE='history-memory-v0.2.7';
+const CACHE='history-memory-v0.2.8';
 const ASSETS=[
-  './',
-  './index.html',
-  './fresh.html',
-  './clean.html',
-  './styles.css?v=027',
-  './loader-v027.js',
-  './manifest.webmanifest',
-  './payload/app.js.gz.b64',
-  './payload/questions-0.gz.b64',
-  './payload/questions-1.gz.b64'
+  './','./index.html','./fresh.html','./clean.html',
+  './styles.css?v=028','./loader-v028.js','./manifest.webmanifest',
+  './payload/app.js.gz.b64','./payload/questions-0.gz.b64','./payload/questions-1.gz.b64'
 ];
 self.addEventListener('install',event=>{
   self.skipWaiting();
