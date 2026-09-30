@@ -1,14 +1,20 @@
-const CACHE='history-memory-v0.2.4';
+const CACHE='history-memory-v0.2.7';
 const ASSETS=[
-  './','./index.html','./fresh.html','./styles.css','./loader-v024.js','./manifest.webmanifest',
-  './payload/app.js.gz.b64','./payload/questions-0.gz.b64','./payload/questions-1.gz.b64'
+  './',
+  './index.html',
+  './fresh.html',
+  './clean.html',
+  './styles.css?v=027',
+  './loader-v027.js',
+  './manifest.webmanifest',
+  './payload/app.js.gz.b64',
+  './payload/questions-0.gz.b64',
+  './payload/questions-1.gz.b64'
 ];
-
 self.addEventListener('install',event=>{
   self.skipWaiting();
   event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)));
 });
-
 self.addEventListener('activate',event=>{
   event.waitUntil(
     caches.keys()
@@ -16,7 +22,6 @@ self.addEventListener('activate',event=>{
       .then(()=>self.clients.claim())
   );
 });
-
 self.addEventListener('fetch',event=>{
   if (event.request.mode === 'navigate' || event.request.destination === 'script') {
     event.respondWith(
